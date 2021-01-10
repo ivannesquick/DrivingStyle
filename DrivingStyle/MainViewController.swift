@@ -11,6 +11,14 @@ import SnapKit
 
 class MainViewController: UIViewController {
     
+    fileprivate lazy var speedTextField: UITextField = {
+       let textField = UITextField()
+        textField.placeholder = "Введите скорость"
+        textField.backgroundColor = UIColor(white: 0, alpha: 0.03)
+        textField.layer.cornerRadius = 10
+        return textField
+    }()
+    
     fileprivate lazy var containerView: UIView = {
         let view = UIView()
         view.backgroundColor = .white
@@ -35,6 +43,8 @@ class MainViewController: UIViewController {
         let button = UIButton()
         button.backgroundColor = .gray
         button.setTitle("Оценить стиль", for: .normal)
+        button.layer.cornerRadius = 20
+        button.addTarget(self, action: #selector(estimateDrivingStyle), for: .touchUpInside)
         return button
     }()
     
@@ -73,6 +83,7 @@ class MainViewController: UIViewController {
     private func setupConstraints() {
         view.addSubview(containerView)
         view.addSubview(estimateButton)
+        view.addSubview(speedTextField)
         containerView.addSubview(speedInformationLabel)
         containerView.addSubview(drivingStyleLabel)
         
@@ -94,6 +105,12 @@ class MainViewController: UIViewController {
             make.centerX.equalTo(self.view)
             make.top.equalTo(containerView.snp.bottom).inset(-70)
         }
+        speedTextField.snp.makeConstraints { (make) in
+            make.centerX.equalTo(self.view)
+            make.width.equalTo(300)
+            make.height.equalTo(40)
+            make.top.equalTo(containerView.snp.top).inset(-110)
+        }
     }
     
     private func configureBackgroundLayer() -> CAShapeLayer {
@@ -109,7 +126,7 @@ class MainViewController: UIViewController {
     private func configureProgressLayer() -> CAShapeLayer {
         let progressLayer = CAShapeLayer()
         progressLayer.path = configureProgressBarPath()    //набор линий определяющий фигуру
-        progressLayer.strokeColor = UIColor.green.cgColor
+        progressLayer.strokeColor = UIColor.orange.cgColor
         progressLayer.lineWidth = 8
         progressLayer.lineCap = .round
         progressLayer.fillColor = nil
@@ -123,8 +140,34 @@ class MainViewController: UIViewController {
     
     private func resetProgressBar() {
         progressLayer?.strokeEnd = 0
+//        progressLayer?.strokeColor = nil
         progressLayer?.removeAllAnimations()
     }
     
+    @objc private func estimateDrivingStyle() {
+        startAnimation(drivingStyleRating: 150, duration: 2)
+        changeLabel()
+    }
+    
+    private func startAnimation(drivingStyleRating: Int, duration: TimeInterval) {
+        resetProgressBar()
+        
+        
+        let progressFloat = CGFloat(drivingStyleRating)
+        let progress = progressFloat/200.0
+        
+        progressLayer?.strokeEnd = progress
+        
+        let strokeEndAnimation = CABasicAnimation(keyPath: "strokeEnd")
+        
+        strokeEndAnimation.fromValue = 0
+        strokeEndAnimation.toValue = progress
+        strokeEndAnimation.duration = duration
+        progressLayer?.add(strokeEndAnimation, forKey: "strokeEndAnimation")
+    }
+    
+    private func changeLabel() {
+        speedInformationLabel.text = "150"
+    }
 }
 
