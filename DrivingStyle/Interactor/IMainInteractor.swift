@@ -9,5 +9,5 @@
 import Foundation
 
 protocol IMainInteractor {
-    func getSpeedCharacteristic() -> Int
+    func updateSpeedCharacteristic(currentSpeed: Int, maxSpeed: Int)
 }

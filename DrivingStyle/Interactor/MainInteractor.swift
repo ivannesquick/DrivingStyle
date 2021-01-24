@@ -9,8 +9,13 @@
 import Foundation
 
 class MainInteractor: IMainInteractor {
-    func getSpeedCharacteristic() -> Int {
-        
+    private var speedCharacteristic: SpeedCharakteristic?
+    weak var interactorOutput: IMainInteractorOutput?
+    
+    func updateSpeedCharacteristic(currentSpeed: Int, maxSpeed: Int) {
+        speedCharacteristic = SpeedCharakteristic(maxSpeed: maxSpeed, currentSpeed: currentSpeed)
+        guard let speedCharacteristic = speedCharacteristic else { return }
+        interactorOutput?.updatePresenter(speedCharacteristic: speedCharacteristic)
     }
     
     

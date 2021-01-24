@@ -11,25 +11,10 @@ import SnapKit
 
 class MainViewController: UIViewController {
     
-    var presenter:IMainPresenter!
+    var viewOutput: IMainViewOutput?
     
-    fileprivate lazy var speedTextField: UITextField = {
-        let textField = UITextField()
-        textField.placeholder = "Введите скорость"
-        textField.backgroundColor = UIColor(white: 0, alpha: 0.03)
-        textField.layer.cornerRadius = 10
-        textField.font = UIFont(name: "Helvetica Neue", size: 15.0)
-        return textField
-    }()
-    
-    fileprivate lazy var maxSpeedTextField: UITextField = {
-        let textField = UITextField()
-        textField.placeholder = "Максимальная скорость на спидометре"
-        textField.backgroundColor = UIColor(white: 0, alpha: 0.03)
-        textField.layer.cornerRadius = 10
-        textField.font = UIFont(name: "Helvetica Neue", size: 15.0)
-        return textField
-    }()
+    fileprivate lazy var speedTextField = UITextField.setupTextfield(placeholder: "Введите скорость")
+    fileprivate lazy var maxSpeedTextField = UITextField.setupTextfield(placeholder: "Максимальная скорость на спидометре")
     
     fileprivate lazy var containerView: UIView = {
         let view = UIView()
@@ -65,11 +50,8 @@ class MainViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        configurator.configure(with: self)
-//        presenter.configureView()
-        // Do any additional setup after loading the view.
         view.backgroundColor = .white
-        presenter.viewDidLoad()
+        viewOutput!.viewDidLoad()
         setupConstraints()
         setupBackGroundLayer()
         setupProgressLayer()
@@ -78,6 +60,10 @@ class MainViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         overrideLayerPath()
+    }
+    
+    func inject(viewOutput: IMainViewOutput) {
+        self.viewOutput = viewOutput
     }
     
     private func overrideLayerPath() {
@@ -130,7 +116,7 @@ class MainViewController: UIViewController {
         }
         speedTextField.snp.makeConstraints { (make) in
             make.centerX.equalTo(self.view)
-            make.width.equalTo(300)
+            make.width.equalTo(320)
             make.height.equalTo(40)
             make.top.equalTo(containerView.snp.top).inset(-110)
         }
@@ -192,7 +178,7 @@ class MainViewController: UIViewController {
         return 90
     }
     
-    private func valueValidation(maxSpeed: Int, currentSpeed: Int) -> Bool {
+    private func differenceValueValidation(maxSpeed: Int, currentSpeed: Int) -> Bool {
         if currentSpeed > maxSpeed {
             showAlert()
             return false
@@ -202,15 +188,12 @@ class MainViewController: UIViewController {
     }
     
     @objc private func estimateDrivingStyle() {
-        let maxSpeed = maxSpeedValidation()
-        let currentSpeed = currentSpeedValidation()
-        if valueValidation(maxSpeed: maxSpeed!, currentSpeed: currentSpeed!) {
-            startAnimation(drivingStyleRating: currentSpeed!, maxSpeedToCar: maxSpeed!, duration: 5)
-            changeLabel(maxSpeed: maxSpeed!, currentSpeed: currentSpeed!)
-        }
+        guard let maxSpeed = maxSpeedValidation() else { return }
+        guard let currentSpeed = currentSpeedValidation() else { return }
+        viewOutput!.updateEntity(currentSpeed: currentSpeed, maxSpeed: maxSpeed)
     }
     
-    private func startAnimation(drivingStyleRating: Int, maxSpeedToCar: Int, duration: TimeInterval) {
+    func startAnimation(drivingStyleRating: Int, maxSpeedToCar: Int, duration: TimeInterval) {
         resetProgressBar()
         
         let maxSpeed = CGFloat(maxSpeedToCar)
@@ -241,9 +224,10 @@ class MainViewController: UIViewController {
 }
 
 extension MainViewController: IMainViewInput {
-    func setValueSpeed() {
-        
+    func updateView(currentSpeed: Int, maxSpeed: Int) {
+        if differenceValueValidation(maxSpeed: maxSpeed, currentSpeed: currentSpeed) {
+            startAnimation(drivingStyleRating: currentSpeed, maxSpeedToCar: maxSpeed, duration: 5)
+            changeLabel(maxSpeed: maxSpeed, currentSpeed: currentSpeed)
+        }
     }
-    
-    
 }

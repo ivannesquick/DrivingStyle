@@ -9,5 +9,5 @@
 import Foundation
 
 protocol IMainViewInput: class {
-    func setValueSpeed()
+    func updateView(currentSpeed: Int, maxSpeed: Int)
 }

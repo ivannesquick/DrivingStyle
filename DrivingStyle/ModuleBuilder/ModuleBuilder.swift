@@ -13,8 +13,10 @@ class ModuleBuilder {
         let view = MainViewController()
         let interactor = MainInteractor()
         let router = MainRouter(view: view)
-        let presenter = MainPresenter(interactor: interactor, router: router)
-        view.presenter = presenter
+        let presenter = MainPresenter(interactor: interactor, router: router, view: view)
+        view.viewOutput = presenter
+        presenter.view = view
+        interactor.interactorOutput = presenter
         return view
     }
 }

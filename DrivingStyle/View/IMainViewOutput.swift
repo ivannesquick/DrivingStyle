@@ -8,7 +8,8 @@
 
 import Foundation
 
-protocol IMainPresenter {
+protocol IMainViewOutput {
     var router: IMainRouter! { get set }
     func viewDidLoad() -> Void
+    func updateEntity(currentSpeed: Int, maxSpeed: Int)
 }

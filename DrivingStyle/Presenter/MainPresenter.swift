@@ -8,12 +8,12 @@
 
 import Foundation
 
-class MainPresenter: IMainPresenter {
+class MainPresenter: IMainViewOutput, IMainInteractorOutput {
     var router: IMainRouter!
     var interactor: IMainInteractor
-    weak var view: IMainViewInput!
+    weak var view: IMainViewInput?
     
-    init(interactor: IMainInteractor, router: IMainRouter) {
+    init(interactor: IMainInteractor, router: IMainRouter, view: IMainViewInput) {
         self.interactor = interactor
         self.router = router
     }
@@ -22,5 +22,22 @@ class MainPresenter: IMainPresenter {
         
     }
     
+    func updateEntity(currentSpeed: Int, maxSpeed: Int) {
+        interactor.updateSpeedCharacteristic(currentSpeed: currentSpeed, maxSpeed: maxSpeed)
+    }
     
+    func updatePresenter(speedCharacteristic: SpeedCharakteristic) {
+        let maxSpeed = speedCharacteristic.maxSpeed
+        let currentSpeed = speedCharacteristic.currentSpeed
+        view?.updateView(currentSpeed: currentSpeed, maxSpeed: maxSpeed)
+    }
+
 }
+
+//extension MainPresenter: IMainInteractorOutput {
+//    func updatePresenter(speedCharacteristic: SpeedCharakteristic) {
+//        let maxSpeed = speedCharacteristic.maxSpeed
+//        let currentSpeed = speedCharacteristic.currentSpeed
+//        view?.updateView(currentSpeed: currentSpeed, maxSpeed: maxSpeed)
+//    }
+//}
